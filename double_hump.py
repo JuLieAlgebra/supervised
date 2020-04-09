@@ -58,7 +58,10 @@ class VanillaNeuralNetwork:
 
 class DoubleHump:
     def __init__(self):
-        self.parameters = np.array([0.1, 2, -10.0, 0.2, 2, 10.0])
+        # self.parameters = np.array([5.0, 2.0, 0.0, 0.2, 2, 10.0])
+        # self.parameters = np.array([5.0 for i in range(6)]) + np.random.rand(6)
+        self.parameters = np.array([1.32976992,4.65817166,0.02179481,1.8540092,0.1351036,6.77380868])
+        self.parameters[2] *= -1
         self._dldp = value_and_grad(self._l)
 
     def predict(self, inputs):
@@ -72,7 +75,7 @@ class DoubleHump:
 
     def train(self, indata, outdata, epochs, step, gain):
         print("DoubleHump is training!")
-        self.v = np.zeros(6, dtype=float)
+        self.v = np.zeros(len(self.parameters), dtype=float)
         for epoch in range(epochs):
             loss_avg = 0.0
             for sample in np.random.permutation(len(indata)):
@@ -85,8 +88,8 @@ class DoubleHump:
         print("DoubleHump done training!")
 
     def _f(self, parameters, inputs):
-        hump0 = parameters[0]*np.exp(-parameters[1]**2*(inputs[0] - parameters[2])**2)
-        hump1 = parameters[3]*np.exp(-parameters[4]**2*(inputs[0] - parameters[5])**2)
+        hump0 = parameters[0]*np.exp(-parameters[1]*(inputs[0] - parameters[2])**2)
+        hump1 = parameters[3]*np.exp(-parameters[4]*(inputs[0] - parameters[5])**2)
         return hump0 + hump1
 
     def _l(self, parameters, inputs, outputs):
@@ -95,14 +98,19 @@ class DoubleHump:
 
 ##################################################
 
+np.random.seed(0)
+
 X = np.arange(-10.0, 20.0, 0.05)
-Y = np.exp(-X**2/10) + np.exp(-(X-10)**2/4)
+# Y = np.exp(-X**2/10) + np.random.randn(np.shape(X)[0])/10
+Y = np.exp(-X**2/10) + 2*np.exp(-(X-7)**2/5.0) + np.random.randn(np.shape(X)[0])/10
 # Y = (np.exp(np.sin(np.sqrt(np.abs(X)))*X) + 10.0*np.exp(-(X+5)**2))/100
 
 model = VanillaNeuralNetwork([1, 10, 1], stdev0=1.0)
 # model = DoubleHump()
-model.train(X, Y, epochs=50, step=0.01, gain=0.9)
+model.train(X, Y, epochs=100, step=0.001, gain=0.9)
 Y_approx = np.array([model.predict([x]) for x in X])
+
+print("Model Parameters: ", model.parameters)
 
 pyplot.plot(X, Y, label="target")
 pyplot.plot(X, Y_approx, label="approx")
