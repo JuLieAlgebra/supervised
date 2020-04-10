@@ -54,10 +54,10 @@ model.save("iris_trial")
 
 ##################################################
 
-count = 0
-for feature, label in zip(features, labels):
-    prediction = classes[np.argmax(model.predict(feature))]
-    print(label, model.predict(feature))
-    if prediction == label:
-        count += 1
-print("ACCURACY:", count / len(features))
+confusion_matrix = model.evaluate(features, labels, classes)
+
+print("==================================================")
+print("Confusion Matrix")
+print(confusion_matrix)
+print("Accuracy: {0}".format(np.sum(np.diag(confusion_matrix))))
+print("==================================================")

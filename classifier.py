@@ -27,10 +27,8 @@ class MLP:
         with open(filename, 'rb') as file:
             self.parameters = pickle.load(file)
 
-    def predict(self, inputs):
-        return self._f(self.parameters, inputs)
-
     def train(self, indata, outdata, epochs, step, gain):
+        assert len(indata) == len(outdata)
         print("==================================================")
         print("MLP: began training")
         self.v_W = [0.0]*len(self.parameters)
@@ -46,6 +44,19 @@ class MLP:
                 print("Epoch: {0} | Loss: {1}".format(epoch, loss_avg))
         print("MLP: finished training")
         print("==================================================")
+
+    def evaluate(self, features, labels, classes):
+        assert len(features) == len(labels)
+        confusion_matrix = np.zeros((len(classes), len(classes)), dtype=float)
+        for feature, label in zip(features, labels):
+            prediction = np.argmax(self.predict(feature))
+            target = list(classes).index(label)
+            confusion_matrix[prediction, target] += 1
+        confusion_matrix *= 100.0/len(features)
+        return confusion_matrix
+
+    def predict(self, inputs):
+        return self._f(self.parameters, inputs)
 
     def correct(self, inputs, outputs, step, gain):
         loss, gradients = self._dldp(self.parameters, inputs, outputs)
