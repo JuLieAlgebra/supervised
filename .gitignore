@@ -4,6 +4,7 @@
 
 # Models
 *.mlp
+*_results.txt
 
 # Media
 *.png

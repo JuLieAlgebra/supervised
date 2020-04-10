@@ -52,7 +52,8 @@ class MLP:
             prediction = np.argmax(self.predict(feature))
             target = list(classes).index(label)
             confusion_matrix[prediction, target] += 1
-        confusion_matrix *= 100.0/len(features)
+        if len(features):
+            confusion_matrix *= 100.0 / len(features)
         return confusion_matrix
 
     def predict(self, inputs):

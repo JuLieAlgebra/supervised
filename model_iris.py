@@ -26,6 +26,9 @@ labels = np.genfromtxt(fname=filename,
                        skip_header=1,
                        usecols=(4))
 
+ndata = len(features)
+assert ndata == len(labels)
+
 ##################################################
 
 classes = np.unique(labels)
@@ -40,24 +43,49 @@ targets = np.array([embedding[label] for label in labels])
 
 ##################################################
 
-model = MLP([4, 20, 3])
+train_frac = 0.5
+ntrain = int(train_frac*ndata)
 
-# model.load("iris_trial")
-
-model.train(indata=features,
-            outdata=targets,
-            epochs=200,
-            step=0.01,
-            gain=0.9)
-
-model.save("iris_trial")
+shuffle = np.random.permutation(ndata)
+shuffle_train = shuffle[:ntrain]
+shuffle_valid = shuffle[ntrain:]
 
 ##################################################
 
-confusion_matrix = model.evaluate(features, labels, classes)
+dimensions = [4, 10, 3]
+model = MLP(dimensions)
+
+name = "iris_model"
+for d in dimensions[1:-1]:
+    name += '_' + str(d)
+print(name)
+
+model.train(indata=features[shuffle_train],
+            outdata=targets[shuffle_train],
+            epochs=400,
+            step=0.005,
+            gain=0.85)
+
+model.save(name)
+
+##################################################
+
+cm_train = model.evaluate(features[shuffle_train],
+                          labels[shuffle_train],
+                          classes)
 
 print("==================================================")
-print("Confusion Matrix")
-print(confusion_matrix)
-print("Accuracy: {0}".format(np.sum(np.diag(confusion_matrix))))
+print("Training Confusion Matrix")
+print(cm_train)
+print("Accuracy: {0}".format(np.sum(np.diag(cm_train))))
+print("==================================================")
+
+cm_valid = model.evaluate(features[shuffle_valid],
+                          labels[shuffle_valid],
+                          classes)
+
+print("==================================================")
+print("Validation Confusion Matrix")
+print(cm_valid)
+print("Accuracy: {0}".format(np.sum(np.diag(cm_valid))))
 print("==================================================")
