@@ -4,6 +4,7 @@
 
 # Models
 *.mlp
+*.pca
 *_results.txt
 
 # Media
