@@ -19,6 +19,7 @@ class PCA:
         self.W = eigvecs[:, ::-1]
         self.b = np.mean(data, axis=0)
         print("PCA: finished analysis")
+        return eigvals[::-1]
 
     def compress(self, data, dimensionality):
         assert self.W is not None
