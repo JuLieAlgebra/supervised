@@ -119,3 +119,31 @@ print("Validation Confusion Matrix")
 print(cm_valid)
 print("Accuracy: {0}".format(np.sum(np.diag(cm_valid))))
 print("==================================================")
+
+##################################################
+
+# print("Plotting PCA projection of data-set and classifier.")
+
+# fig = pyplot.figure()
+# ax = fig.add_subplot(1, 1, 1)
+# ax.set_title('MLP-Classification of the Faces Data-Set', fontsize=16)
+
+# ax.set_xlim([-10.0, 10.0])
+# ax.set_xlabel("PCA Component 0", fontsize=12)
+# ax.set_ylim([-10.0, 10.0])
+# ax.set_ylabel("PCA Component 1", fontsize=12)
+
+# XX, YY = np.meshgrid(np.arange(*ax.get_xlim(), 0.05),
+#                      np.arange(*ax.get_ylim(), 0.05))
+# XY = np.vstack((XX.ravel(), YY.ravel())).T
+# XY = np.column_stack((XY, np.zeros((len(XY), dimensions[0]-2), dtype=float)))
+# ZZ = np.argmax(mlp.predict(XY), axis=1).reshape(XX.shape)
+# ax.contourf(XX, YY, ZZ+1e-6, alpha=0.2)
+
+# labels_train = np.array(labels_train)
+# ax.scatter(samples_train_compressed[labels_train=="male", 0], samples_train_compressed[labels_train=="male", 1], c='b', edgecolors='k', label="male")
+# ax.scatter(samples_train_compressed[labels_train=="female", 0], samples_train_compressed[labels_train=="female", 1], c='r', edgecolors='k', label="female")
+# ax.legend()
+
+# print("Close plots to finish...")
+# pyplot.show()
