@@ -62,18 +62,60 @@ targets_test = np.array([embedding[label] for label in labels_test])
 
 ##################################################
 
+dimensions = [40, 100, 50, 2]
+
+name = "faces_results/faces_model"
+for d in dimensions[:-1]:
+    name += '_' + str(d)
+print(name)
+
+##################################################
+
 pca = PCA()
-eigs = pca.analyze(samples_train)
-pca.save("faces_results/faces")
-pca.load("faces_results/faces")
+new_pca = True
 
+if new_pca:
+    eigs = pca.analyze(samples_train)
+    pca.save("faces_results/faces")
+else:
+    pca.load("faces_results/faces")
 
-# QUICK TEST
-fig = pyplot.figure()
-show_image_vector(-pca.W[:, 0], fig.add_subplot(1, 3, 1))
-show_image_vector(-pca.W[:, 1], fig.add_subplot(1, 3, 2))
-show_image_vector(-pca.W[:, 2], fig.add_subplot(1, 3, 3))
-fig = pyplot.figure()
-pyplot.plot(np.abs(eigs[:150])/np.max(np.abs(eigs[:150])))
-pyplot.show()
-quit()
+samples_train_compressed = pca.compress(samples_train, dimensionality=dimensions[0])
+samples_test_compressed = pca.compress(samples_test, dimensionality=dimensions[0])
+
+##################################################
+
+mlp = MLP(dimensions)
+new_mlp = True
+
+if new_mlp:
+    mlp.train(samples_train_compressed,
+              targets_train,
+              max_epochs=200,
+              step=0.1,
+              gain=0.9)
+    mlp.save(name)
+else:
+    mlp.load(name)
+
+##################################################
+
+cm_train = mlp.evaluate(samples_train_compressed,
+                        labels_train,
+                        classes)
+
+print("==================================================")
+print("Training Confusion Matrix")
+print(cm_train)
+print("Accuracy: {0}".format(np.sum(np.diag(cm_train))))
+print("==================================================")
+
+cm_valid = mlp.evaluate(samples_test_compressed,
+                        labels_test,
+                        classes)
+
+print("==================================================")
+print("Validation Confusion Matrix")
+print(cm_valid)
+print("Accuracy: {0}".format(np.sum(np.diag(cm_valid))))
+print("==================================================")
