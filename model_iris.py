@@ -4,12 +4,14 @@ Using a multilayer-perceptron to model the iris dataset.
 
 """
 import numpy as np
+import seaborn as sns
 from matplotlib import pyplot
 
 from mlp import MLP
 from pca import PCA
 
 np.set_printoptions(suppress=True)
+sns.set(rc={'figure.figsize':(11.7,8.27)})
 
 ##################################################
 
@@ -95,6 +97,16 @@ print("Validation Confusion Matrix")
 print(cm_valid)
 print("Accuracy: {0}".format(np.sum(np.diag(cm_valid))))
 print("==================================================")
+
+##################################################
+
+from sklearn.manifold import TSNE
+
+features_tsne = TSNE(n_components=2).fit_transform(features)
+fig = pyplot.figure()
+ax = fig.add_subplot(1, 1, 1)
+sns.scatterplot(features_tsne[:,0], features_tsne[:,1], hue=labels, legend='full')
+ax.set_title("T-SNE on Iris Data-Set", fontsize=16)
 
 ##################################################
 
