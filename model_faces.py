@@ -4,6 +4,7 @@ Using PCA and an MLP to model the faces dataset.
 
 """
 import numpy as np
+import seaborn as sns
 from matplotlib import pyplot
 
 from mlp import MLP
@@ -62,7 +63,7 @@ targets_test = np.array([embedding[label] for label in labels_test])
 
 ##################################################
 
-dimensions = [40, 100, 50, 2]
+dimensions = [20, 100, 50, 2]
 
 name = "faces_results/faces_model"
 for d in dimensions[:-1]:
@@ -72,7 +73,7 @@ print(name)
 ##################################################
 
 pca = PCA()
-new_pca = True
+new_pca = False
 
 if new_pca:
     eigs = pca.analyze(samples_train)
@@ -86,7 +87,7 @@ samples_test_compressed = pca.compress(samples_test, dimensionality=dimensions[0
 ##################################################
 
 mlp = MLP(dimensions)
-new_mlp = True
+new_mlp = False
 
 if new_mlp:
     mlp.train(samples_train_compressed,
@@ -147,3 +148,16 @@ print("==================================================")
 
 # print("Close plots to finish...")
 # pyplot.show()
+
+
+from sklearn.manifold import TSNE
+
+perplexities = [1, 3, 10, 30]
+for perplexity in perplexities:
+    features_tsne = TSNE(n_components=2, perplexity=perplexity).fit_transform(samples_train_compressed)
+    fig = pyplot.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    sns.scatterplot(features_tsne[:,0], features_tsne[:,1], hue=labels_train, legend='full')
+    ax.set_title("T-SNE on Iris Data-Set with Perplexity {0}".format(perplexity), fontsize=16)
+
+pyplot.show()

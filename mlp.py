@@ -2,6 +2,8 @@
 Multilayer-perceptron for deep classification (or optionally regression).
 Trained by stochastic gradient descent with momentum.
 
+Uses autograd library for automatic differentiation.
+
 """
 from autograd import numpy as np, value_and_grad
 import pickle
@@ -17,12 +19,18 @@ class MLP:
         self._dldp = value_and_grad(self._l)
 
     def save(self, filename):
+        """
+        Saves model.
+        """
         if filename[-4:] != ".mlp":
             filename = filename + ".mlp"
         with open(filename, 'wb') as file:
             pickle.dump(self.parameters, file, pickle.HIGHEST_PROTOCOL)
 
     def load(self, filename):
+        """
+        Loads saved model.
+        """
         if filename[-4:] != ".mlp":
             filename = filename + ".mlp"
         with open(filename, 'rb') as file:
@@ -92,7 +100,7 @@ class MLP:
 
     def correct(self, inputs, outputs, step, gain):
         """
-        One step of gradient descent
+        One step of gradient descent.
         """
         loss, gradients = self._dldp(self.parameters, inputs, outputs)
         for i, ((W, b), (dldW, dldb)) in enumerate(zip(self.parameters, gradients)):
@@ -104,7 +112,7 @@ class MLP:
 
     def _f(self, parameters, inputs):
         """
-        Feed forward function
+        Feed forward function.
         """
         for W, b in parameters:
             outputs = np.dot(inputs, W) + b
@@ -116,7 +124,7 @@ class MLP:
 
     def _l(self, parameters, inputs, outputs):
         """
-        Loss function
+        Loss function.
         """
         error = outputs - self._f(parameters, inputs)
         return np.dot(error, error)

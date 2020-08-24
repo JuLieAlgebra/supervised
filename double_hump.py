@@ -13,6 +13,10 @@ class DoubleHump:
         self.parameters = np.array([5.0 for i in range(6)]) + np.random.rand(6)
         self.parameters[2] *= -1
         self._dldp = value_and_grad(self._l)
+        self.hump = 0
+        # Switch tests out whether or not the model is struggling with handling
+        # fits both humps at the same time
+        # self.switch = 300
 
     def predict(self, inputs):
         return self._f(self.parameters, inputs)
@@ -21,6 +25,13 @@ class DoubleHump:
         loss, gradients = self._dldp(self.parameters, inputs, outputs)
         self.v += gain*(gradients - self.v)
         self.parameters -= step*self.v
+        # if self.hump < self.switch:
+        #     self.v[:3] += gain*(gradients[:3] - self.v[:3])
+        #     self.parameters[:3] -= step*self.v[:3]
+        # else:
+        #     self.v[3:] += gain*(gradients[3:] - self.v[3:])
+        #     self.parameters[3:] -= step*self.v[3:]
+        # self.hump = np.mod(self.hump + 1, self.switch*2)
         return loss
 
     def train(self, indata, outdata, epochs, step, gain):
@@ -51,10 +62,11 @@ class DoubleHump:
 np.random.seed(0)
 
 X = np.arange(-10.0, 20.0, 0.05)
+
 Y = np.exp(-X**2/10) + 2*np.exp(-(X-7)**2/5.0) + np.random.randn(np.shape(X)[0])/10
 
 model = DoubleHump()
-model.train(X, Y, epochs=200, step=0.005, gain=0.9)
+model.train(X, Y, epochs=2000, step=0.002, gain=0.995)
 Y_approx = np.array([model.predict([x]) for x in X])
 
 print("Model Parameters: ", model.parameters)
