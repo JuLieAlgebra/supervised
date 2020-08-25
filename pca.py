@@ -4,6 +4,7 @@ Principal-component analysis class.
 """
 import numpy as np
 import pickle
+import os
 
 ##################################################
 
@@ -49,11 +50,12 @@ class PCA:
 if __name__ == "__main__":
     print("PCA: began unit-test")
 
-    from matplotlib import pyplot
     import seaborn
     seaborn.set()
+    from matplotlib import pyplot
 
-    filename = "/home/bacon/code/datasets/IRIS.csv"
+    filename = os.path.join(os.path.dirname(__file__), 'datasets', 'IRIS.csv')
+
     features = np.genfromtxt(fname=filename,
                              dtype=float,
                              comments='#',

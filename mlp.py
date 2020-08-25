@@ -38,6 +38,8 @@ class MLP:
 
     def train(self, features, targets, step, gain, tolerance=1e-3, max_epochs=400):
         """
+        Training MLP with stochastic gradient descent with momentum.
+
         features:   A two dimensional np array of the features of the data.
                     Each line is a sample from the data, without the corresponding
                     label.
@@ -67,10 +69,12 @@ class MLP:
 
     def evaluate(self, features, labels, classes):
         """
-        features:   A two dimensional np array of the features of the data.
+        Creates a confusion matrix for the data, if classifier mode is selected.
+
+        features:   A two dimensional numpy array of the features of the data.
                     Each line is a sample from the data, without the corresponding
                     label.
-        labels:     A two dimensional np array of the classifications of the data.
+        labels:     A two dimensional numpy array of the classifications of the data.
                     Each line is the class label (an int from 0 to n-1 number of classes)
                     of the corresponding sample of data.
 
@@ -79,13 +83,18 @@ class MLP:
         classes:    A list of possible label values.
         """
         assert len(features) == len(labels)
+        assert self.classifier
+
         confusion_matrix = np.zeros((len(classes), len(classes)), dtype=float)
+
         for feature, label in zip(features, labels):
             prediction = np.argmax(self.predict(feature))
             target = list(classes).index(label)
             confusion_matrix[prediction, target] += 1
+
         if len(features):
             confusion_matrix *= 100.0 / len(features)
+
         return confusion_matrix
 
     def predict(self, inputs):
@@ -100,19 +109,23 @@ class MLP:
 
     def correct(self, inputs, outputs, step, gain):
         """
-        One step of gradient descent.
+        One step of stochastic gradient descent (SGD) with momentum.
         """
+        # get gradient information of our loss function
         loss, gradients = self._dldp(self.parameters, inputs, outputs)
+
+        # update
         for i, ((W, b), (dldW, dldb)) in enumerate(zip(self.parameters, gradients)):
             self.v_W[i] += gain*(dldW - self.v_W[i])
             self.v_b[i] += gain*(dldb - self.v_b[i])
             W -= step*self.v_W[i]
             b -= step*self.v_b[i]
+
         return loss
 
     def _f(self, parameters, inputs):
         """
-        Feed forward function.
+        Internal feed forward function.
         """
         for W, b in parameters:
             outputs = np.dot(inputs, W) + b
@@ -124,7 +137,7 @@ class MLP:
 
     def _l(self, parameters, inputs, outputs):
         """
-        Loss function.
+        Internal loss function.
         """
         error = outputs - self._f(parameters, inputs)
         return np.dot(error, error)

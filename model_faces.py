@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """
 Using PCA and an MLP to model the faces dataset.
+Quick exploration of using T-SNE to visualize.
 
 """
 import numpy as np
 import seaborn as sns
 from matplotlib import pyplot
+from sklearn.manifold import TSNE
+import os
+
 
 from mlp import MLP
 from pca import PCA
@@ -14,7 +18,7 @@ np.set_printoptions(suppress=True)
 
 ##################################################
 
-directory = "/home/bacon/code/datasets/faces"
+directory = os.path.join(os.path.dirname(__file__), 'datasets', 'faces')
 
 def load_image_vector(subject, instance):
     return pyplot.imread(directory+"/images/subject{0}_img{1}.pgm".format(subject, instance)).flatten() / 255.0
@@ -123,38 +127,35 @@ print("==================================================")
 
 ##################################################
 
-# print("Plotting PCA projection of data-set and classifier.")
+print("Plotting PCA projection of data-set and classifier.")
 
-# fig = pyplot.figure()
-# ax = fig.add_subplot(1, 1, 1)
-# ax.set_title('MLP-Classification of the Faces Data-Set', fontsize=16)
+fig = pyplot.figure()
+ax = fig.add_subplot(1, 1, 1)
+ax.set_title('MLP-Classification of the Faces Data-Set', fontsize=16)
 
-# ax.set_xlim([-10.0, 10.0])
-# ax.set_xlabel("PCA Component 0", fontsize=12)
-# ax.set_ylim([-10.0, 10.0])
-# ax.set_ylabel("PCA Component 1", fontsize=12)
+ax.set_xlim([-10.0, 10.0])
+ax.set_xlabel("PCA Component 0", fontsize=12)
+ax.set_ylim([-10.0, 10.0])
+ax.set_ylabel("PCA Component 1", fontsize=12)
 
-# XX, YY = np.meshgrid(np.arange(*ax.get_xlim(), 0.05),
-#                      np.arange(*ax.get_ylim(), 0.05))
-# XY = np.vstack((XX.ravel(), YY.ravel())).T
-# XY = np.column_stack((XY, np.zeros((len(XY), dimensions[0]-2), dtype=float)))
-# ZZ = np.argmax(mlp.predict(XY), axis=1).reshape(XX.shape)
-# ax.contourf(XX, YY, ZZ+1e-6, alpha=0.2)
+XX, YY = np.meshgrid(np.arange(*ax.get_xlim(), 0.05),
+                     np.arange(*ax.get_ylim(), 0.05))
+XY = np.vstack((XX.ravel(), YY.ravel())).T
+XY = np.column_stack((XY, np.zeros((len(XY), dimensions[0]-2), dtype=float)))
+ZZ = np.argmax(mlp.predict(XY), axis=1).reshape(XX.shape)
+ax.contourf(XX, YY, ZZ+1e-6, alpha=0.2)
 
-# labels_train = np.array(labels_train)
-# ax.scatter(samples_train_compressed[labels_train=="male", 0], samples_train_compressed[labels_train=="male", 1], c='b', edgecolors='k', label="male")
-# ax.scatter(samples_train_compressed[labels_train=="female", 0], samples_train_compressed[labels_train=="female", 1], c='r', edgecolors='k', label="female")
-# ax.legend()
+labels_train = np.array(labels_train)
+ax.scatter(samples_train_compressed[labels_train=="male", 0], samples_train_compressed[labels_train=="male", 1], c='b', edgecolors='k', label="male")
+ax.scatter(samples_train_compressed[labels_train=="female", 0], samples_train_compressed[labels_train=="female", 1], c='r', edgecolors='k', label="female")
+ax.legend()
 
-# print("Close plots to finish...")
-# pyplot.show()
+print("Close plots to finish...")
+pyplot.show()
 
-
-from sklearn.manifold import TSNE
-
-perplexities = [1, 3, 10, 30]
+perplexities = [10, 15, 30]
 for perplexity in perplexities:
-    features_tsne = TSNE(n_components=2, perplexity=perplexity).fit_transform(samples_train_compressed)
+    features_tsne = TSNE(n_components=2, perplexity=perplexity, n_iter=100000).fit_transform(samples_train_compressed)
     fig = pyplot.figure()
     ax = fig.add_subplot(1, 1, 1)
     sns.scatterplot(features_tsne[:,0], features_tsne[:,1], hue=labels_train, legend='full')

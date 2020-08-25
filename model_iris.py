@@ -6,6 +6,7 @@ Using a multilayer-perceptron to model the iris dataset.
 import numpy as np
 import seaborn as sns
 from matplotlib import pyplot
+import os
 
 from mlp import MLP
 from pca import PCA
@@ -15,7 +16,7 @@ sns.set(rc={'figure.figsize':(11.7,8.27)})
 
 ##################################################
 
-filename = "/home/bacon/code/datasets/IRIS.csv"
+filename = os.path.join(os.path.dirname(__file__), 'datasets', 'IRIS.csv')
 
 features = np.genfromtxt(fname=filename,
                          dtype=float,
@@ -48,6 +49,7 @@ targets = np.array([embedding[label] for label in labels])
 
 ##################################################
 
+# Splitting the data for training
 train_frac = 0.5
 ntrain = int(train_frac*ndata)
 
@@ -69,7 +71,7 @@ do_training = True
 if do_training:
     model.train(features=features[shuffle_train],
                 targets=targets[shuffle_train],
-                max_epochs=800,
+                max_epochs=300,
                 step=0.001,
                 gain=0.9)
     model.save(name)
